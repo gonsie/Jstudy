@@ -36,6 +36,12 @@ class Clue:
 		output += "Q: " + self.text + "\tA: " + self.soln
 		return output
 
+	def question(self):
+		return "Q: " + self.text
+
+	def answer(self):
+		return "A: " + self.soln
+
 
 class Category:
 	def __init__(self, category_html, game_id):
@@ -55,6 +61,21 @@ class Category:
 		for clue in self.clues:
 			output += "\t" + str(clue) + "\n"
 		return output
+
+	def questions(self):
+		output = ""
+		output += self.name + "\n"
+		for clue in self.clues:
+			output += "\t" + clue.question() + "\n"
+		return output
+
+	def answers(self):
+		output = ""
+		output += self.name + "\n"
+		for clue in self.clues:
+			output += "\t" + clue.answer() + "\n"
+		return output
+
 
 class Game:
 	def __init__(self, game_html):
@@ -84,10 +105,27 @@ class Game:
 				output += str(c)
 		return output
 
+	def study_guide(self):
+		output = self.name + "\n"
+		output += "\n **** QUESTIONS ****\n"
+		for r in self.rounds:
+			for c in r:
+				output += c.questions()
+			output += "\n"
+		output += "\n ****  ANSWERS  ****\n"
+		for r in self.rounds:
+			for c in r:
+				output += c.answers()
+			output += "\n"
+		return output
+
+
+
+
 def main(html_file_name):
 	soup = BeautifulSoup(open(html_file_name))
 	g = Game(soup)
-	print g
+	print g.study_guide()
 
 if __name__ == '__main__':
 	if len(sys.argv) < 2:
