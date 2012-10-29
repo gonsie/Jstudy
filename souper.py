@@ -25,6 +25,12 @@ class Clue:
 		self.soln = temp.find(class_=re.compile("correct_response")).text
 		# print "clue__init", str(self.round), str(self.x), str(self.y)
 
+	def set_game(self, game_id):
+		self.game = game_id
+
+	def set_category(self, category):
+		self.category = category
+
 	def __repr__(self):
 		output = ""
 		output += "Q: " + self.text + "\tA: " + self.soln
@@ -32,14 +38,16 @@ class Clue:
 
 
 class Category:
-	def __init__(self, category_html, col):
+	def __init__(self, category_html, game_id):
 		self.name = category_html.find(class_="category_name").text
 		self.clues = []
-		self.col = col
+		self.game = game_id
 		# print "category__init:", self.name
 
 	def append(self, clue):
 		self.clues.append(clue)
+		clue.set_category(self.name)
+		clue.set_game(self.game)
 
 	def __repr__(self):
 		output = ""
@@ -51,19 +59,20 @@ class Category:
 class Game:
 	def __init__(self, game_html):
 		self.rounds = []
+		self.name = game_html.title.text
 		for round in game_html.find_all(id=re.compile("jeopardy_round")):
 			self.rounds.append([])
 			counter = 0
 			for category in round.find_all(class_="category"):
-				self.rounds[-1].append(Category(category, counter))
+				self.rounds[-1].append(Category(category, self.name))
 				counter += 1
 			for clue in round.find_all(class_="clue"):
 				# special case for final jeopardy
 				if counter == 1:
-					temp = round.find(class_="category")
-					self.rounds[-1][0].append(Clue(temp))
+					clue = round.find(class_="category")
+					counter = 0
 				# empty spots for unreached clues
-				elif len(list(clue.children)) > 1:
+				if len(list(clue.children)) > 1:
 					self.rounds[-1][counter % 6].append(Clue(clue))
 				counter += 1
 
