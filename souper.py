@@ -77,8 +77,9 @@ class Game:
 				counter += 1
 
 	def __repr__(self):
-		output = ""
+		output = self.name + "\n"
 		for r in self.rounds:
+			output += "\n"
 			for c in r:
 				output += str(c)
 		return output
